@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <!--android:background="#bb7700">-->
+
+    <com.dian.View.AutoFitTextureView
+        android:id="@+id/texture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
+    <ImageView
+        android:id="@+id/face_box"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitStart"
+        />
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bottom_info_view"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="false"
+        android:background="#bb7700"
+        android:orientation="vertical"
+        android:weightSum="100">
+
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_weight="30"
+            android:textColor="#FFF"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:background="#aa7700"
+        android:layout_alignParentBottom="true"
+
+        android:layout_width="match_parent"
+        android:id="@+id/bottom_info_view"
+        android:layout_marginBottom="100dp"
+        android:layout_height="60dp">
+        <TextView
+            android:textSize="20sp"
+            android:id="@+id/time_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textColor="@android:color/white"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:text="22 ms" />
+
+
+    </LinearLayout>
+</RelativeLayout>
