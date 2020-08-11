@@ -36,14 +36,14 @@ private:
 
     const int joints=17;
     const int stride = 4;
-    const int target_width = 192;
-    const int target_height = 256;
+    const int target_width = 96;
+    const int target_height = 128;
     const int heatmap_width = target_width / stride;
     const int heatmap_height= target_height / stride;
     const float mean_vals[3] = {123.68f, 116.78f,103.94f};
     const float norm_vals[3] = {0.017f,0.017f,0.017f};
-    const std::vector<std::string> output_tensor_names = {"581"};
-    const float SCORE_THRESHOLD= 0.0;
+    const std::vector<std::string> output_tensor_names = {"heatmap"};
+    const float SCORE_THRESHOLD= 0.3;
 };
 
 #endif //POSE_MAC_POSENET_H

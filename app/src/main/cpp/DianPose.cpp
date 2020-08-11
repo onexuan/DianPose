@@ -3,9 +3,11 @@
 // Created by 周瑞松 on 2020/7/25.
 // Copyright © 2020 周瑞松. All rights reserved.
 //
-#include "DianPose.h"
 
 #include <android/log.h>
+#include <chrono>
+
+#include "DianPose.h"
 #define TAG "DianPose"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG,TAG,__VA_ARGS__)
 
@@ -14,7 +16,7 @@ DianPose::DianPose(int num_thread) {
     this->personModel = new PersonDetectionNet(num_thread);
     this->poseModel = new PoseNet(num_thread);
     detection_Time = -1;
-    detection_Interval = 350; //detect faces every 200 ms
+    detection_Interval = 100; //detect person every 100 ms
     first_run = true;
 }
 
@@ -72,7 +74,6 @@ bool DianPose::tracking(cv::Mat &image, PersonInfo &person, bool use_track) {
 
     cv::Rect roi(person.x1, person.y1, person.x2 - person.x1, person.y2 - person.y1);
     cv::Mat roiImage;
-    clock_t start_time = clock();
     if (use_track) {
         tracking_corrfilter(image, person.frame_person_prev, roi, 2);
         person.x1 = roi.x;
@@ -84,9 +85,7 @@ bool DianPose::tracking(cv::Mat &image, PersonInfo &person, bool use_track) {
 
     image(roi).copyTo(roiImage);
     int track = poseModel->detect(roiImage, person);
-    clock_t finish_time = clock();
-    double total_time = (double) (finish_time - start_time) / CLOCKS_PER_SEC;
-    LOGD("Finish tracking and detecting pose. time is %f ms\n", total_time * 1000);
+
     return track != 0;
 
 }
@@ -94,20 +93,17 @@ bool DianPose::tracking(cv::Mat &image, PersonInfo &person, bool use_track) {
 void DianPose::update(cv::Mat &image) {
 
     bool use_track = true;
-    if (detection_Time < 0) {
+    double diff = ((double) cvGetTickCount() - detection_Time)/(cvGetTickFrequency() * 1000);
+    LOGD("diff time %f", diff);
+    if (diff > detection_Interval) {
+        LOGD("Redetecting...");
         detection_Time = (double) cvGetTickCount();
-    } else {
-        double diff = (double) cvGetTickCount() - detection_Time;
-        diff /= (cvGetTickFrequency() * 1000);
-        if (diff > detection_Interval) {
-            std::cout << "Redetecting..." << std::endl;
-            detection_Time = (double) cvGetTickCount();
-            // do detection in thread
-            trackPersons.clear();
-            detecting(image);
-            use_track = false;
-        }
+        // do detection in thread
+        trackPersons.clear();
+        detecting(image);
+        use_track = false;
     }
+
 
     for (auto iter = trackPersons.begin(); iter != trackPersons.end();) {
         if (!tracking(image, *iter, use_track)) {

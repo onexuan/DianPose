@@ -5,6 +5,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class PoseTracking {
 
     static {
@@ -13,7 +14,7 @@ public class PoseTracking {
 
     public native static void run(byte[] data, int height, int width, long session);
 
-    public native static long createSession(int thread);
+    public native static long createSession(int thread, String modelpath);
 
     public native static void releaseSession(long session);
 
@@ -26,8 +27,8 @@ public class PoseTracking {
     private List<PersonInfo> persons;
     private long session;
 
-    public PoseTracking(int thread) {
-        session = createSession(thread);
+    public PoseTracking(int thread, String modelpath) {
+        session = createSession(thread, modelpath);
         persons = new ArrayList<PersonInfo>();
 
     }
@@ -37,7 +38,6 @@ public class PoseTracking {
     }
 
     public void detect(byte[] data, int height, int width) {
-
 
         run(data, height, width, session);
         int numsPerson = getTrackingNum(session);

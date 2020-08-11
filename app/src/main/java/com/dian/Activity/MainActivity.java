@@ -2,21 +2,26 @@ package com.dian.Activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.hardware.camera2.CameraCharacteristics;
+import android.os.Environment;
 import android.os.SystemClock;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 
 import com.dian.Fragment.Camera2BasicFragment;
@@ -25,10 +30,48 @@ import com.dian.dianpose.R;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity {
     private RadioGroup threadGroup;
     private RadioGroup archGroup;
     private Camera2BasicFragment currentFragment = null;
+
+    public void copyFilesFromAssets(Context context, String oldPath, String newPath) {
+        try {
+            String[] fileNames = context.getAssets().list(oldPath);
+            if (fileNames.length > 0) {
+                // directory
+                File file = new File(newPath);
+                if (!file.mkdir())
+                {
+                    Log.d("mkdir","can't make folder");
+
+                }
+
+                for (String fileName : fileNames) {
+                    copyFilesFromAssets(context, oldPath + "/" + fileName,
+                            newPath + "/" + fileName);
+                }
+            } else {
+                // file
+                InputStream is = context.getAssets().open(oldPath);
+                FileOutputStream fos = new FileOutputStream(new File(newPath));
+                byte[] buffer = new byte[1024];
+                int byteCount;
+                while ((byteCount = is.read(buffer)) != -1) {
+                    fos.write(buffer, 0, byteCount);
+                }
+                fos.flush();
+                is.close();
+                fos.close();
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +82,16 @@ public class MainActivity extends AppCompatActivity {
 
         threadGroup = findViewById(R.id.thread_group);
         archGroup = findViewById(R.id.arch_group);
+
+//        String assetPath = "Models";
+//        String sdcardPath = "/sdcard/dianpose/Models";
+//        Log.i("DIANPOSE", "onCreate: "+sdcardPath);
+//        copyFilesFromAssets(this, assetPath, sdcardPath);
+//        File file=new File(sdcardPath);
+//        File[] files=file.listFiles();
+//        for(int i =0;i<files.length;i++){
+//            Log.i("sdcardPath","files under path:" + files[i].getAbsolutePath());
+//        }
 
         Button imageButton = findViewById(R.id.button_picture);
         imageButton.setOnClickListener(new View.OnClickListener() {

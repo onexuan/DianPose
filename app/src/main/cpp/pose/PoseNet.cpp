@@ -3,7 +3,7 @@
 //
 
 #include "PoseNet.h"
-#include "snet.h"
+#include "pose_snet.h"
 
 #include <android/log.h>
 #define TAG "DianPose"
@@ -11,10 +11,14 @@
 
 typedef std::pair<float, MNN::CV::Point> partsType;
 
+float sign(float x) {
+    return x > 0 ? 1 : -1;
+}
+
 PoseNet::PoseNet(int num_thread) {
-    net = std::shared_ptr<MNN::Interpreter>(MNN::Interpreter::createFromBuffer(snet_2up_mnn,snet_2up_mnn_len));
+    net = std::shared_ptr<MNN::Interpreter>(MNN::Interpreter::createFromBuffer(snet_ap34_mnn,snet_ap34_mnn_len));
     MNN::ScheduleConfig config;
-    config.type = MNN_FORWARD_AUTO;
+    config.type = MNN_FORWARD_CPU;
     config.numThread = num_thread;
     MNN::BackendConfig backendConfig;
     backendConfig.precision = MNN::BackendConfig::Precision_High;
@@ -31,7 +35,7 @@ PoseNet::PoseNet(int num_thread) {
     ::memcpy(img_config.mean, mean_vals, sizeof(mean_vals));
     ::memcpy(img_config.normal, norm_vals, sizeof(norm_vals));
 
-    img_config.sourceFormat = MNN::CV::ImageFormat::RGBA;
+    img_config.sourceFormat = MNN::CV::ImageFormat::RGB;
     img_config.destFormat = MNN::CV::ImageFormat::RGB;
 
     img_config.filterType = MNN::CV::Filter::BILINEAR;
@@ -50,7 +54,6 @@ PoseNet::~PoseNet() {
 
 int PoseNet::detect(cv::Mat &img, PersonInfo &person) {
     if (img.empty()) {
-//        std::cout << "image is empty ,please check!" << std::endl;
         return 0;
     }
 
@@ -83,14 +86,27 @@ void _get_max_preds(MNN::Tensor *heatmaps, std::vector<partsType> &parts, float 
     for (int id = 0; id < channel; ++id) {
         auto idScoresPtr = scoresPtr + id * width * height;
         float max_value = -1;
-        int index = 0;
+        int max_index = 0;
+        int second_index = 0;
+        float second_value = -1;
         for (int i = 0; i < width * height; i++) {
-            if (idScoresPtr[i] >= max_value && idScoresPtr[i] >= threshold) {
-                index = i;
+            if (idScoresPtr[i] < threshold) {
+                continue;
+            }
+            if (idScoresPtr[i] >= max_value) {
+                second_index = max_index;
+                second_value = max_value;
+                max_index = i;
                 max_value = idScoresPtr[i];
+            } else if (idScoresPtr[i] > second_value && idScoresPtr[i] < max_value) {
+                second_index = i;
+                second_value = idScoresPtr[i];
             }
         }
-        MNN::CV::Point coord{static_cast<float>(index % width), static_cast<float>(index / width)};
+        float offset_x = max_index % width + sign(second_index % width - max_index % width) * 0.25;
+        float offset_y = max_index / width + sign(second_index / width - max_index / width) * 0.25;
+
+        MNN::CV::Point coord{static_cast<float>(offset_x), static_cast<float>(offset_y)};
         parts.emplace_back(max_value, coord);
     }
 }

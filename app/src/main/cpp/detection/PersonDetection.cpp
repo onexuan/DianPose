@@ -42,7 +42,7 @@ PersonDetectionNet::PersonDetectionNet(int num_thread) {
     detector = MNN::Interpreter::createFromBuffer(ultrapose_mnn, ultrapose_mnn_len);
 
     MNN::ScheduleConfig config;
-    config.type = MNN_FORWARD_AUTO;
+    config.type = MNN_FORWARD_CPU;
     config.numThread = num_thread;
 
     MNN::BackendConfig backendConfig;
@@ -63,7 +63,7 @@ PersonDetectionNet::PersonDetectionNet(int num_thread) {
     std::memcpy(image_config.mean, mean_vals_detection, sizeof(mean_vals_detection));
     std::memcpy(image_config.normal, norm_vals_detection, sizeof(norm_vals_detection));
 
-    image_config.sourceFormat = MNN::CV::ImageFormat::RGBA;
+    image_config.sourceFormat = MNN::CV::ImageFormat::RGB;
     image_config.destFormat = MNN::CV::ImageFormat::RGB;
 
     image_config.filterType = MNN::CV::Filter::BILINEAR;

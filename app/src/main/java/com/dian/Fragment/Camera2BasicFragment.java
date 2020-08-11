@@ -580,9 +580,11 @@ public class Camera2BasicFragment extends Fragment {
         @Override
         public void run() {
             Bitmap bitmap;
-            File sdDir = Environment.getExternalStorageDirectory();
-//            PoseTracking.init(sdDir.toString() + "/mtcnn/", threadNum, useGPU);
-            PoseTracking model = new PoseTracking(threadNum);
+
+            String sdcardPath = "/sdcard/dianpose/Models";
+
+
+            PoseTracking model = new PoseTracking(threadNum, sdcardPath);
             float[] points = new float[212];
             while (!isInterrupted()) {
                 lock.lock();

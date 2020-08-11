@@ -17,6 +17,7 @@ import java.nio.FloatBuffer;
 
 public class ImageUtil {
 
+
     public static Bitmap drawFacePoints(Bitmap bitmap, float[] points, int color, boolean copy, float scale) {
 //        if (copy) {
 //            bitmap2 = bitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -28,40 +29,11 @@ public class ImageUtil {
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();
         paint.setColor(color);
-        for (int i = 0; i < 212; i += 2) {
+        for (int i = 0; i < 34; i += 2) {
             canvas.drawCircle(points[i] * scale, points[i + 1] * scale, 5, paint);
         }
         canvas.save();
 
-        paint.setStrokeWidth(1);
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        paint.setColor(Color.BLACK);
-        Path path = new Path();
-
-        // 绘制左眼
-        path.moveTo(points[104] * scale, points[105] * scale);
-        path.lineTo(points[106] * scale, points[107] * scale);
-        path.lineTo(points[144] * scale, points[145] * scale);
-        path.lineTo(points[108] * scale, points[109] * scale);
-        path.lineTo(points[110] * scale, points[111] * scale);
-        path.lineTo(points[112] * scale, points[113] * scale);
-        path.lineTo(points[146] * scale, points[147] * scale);
-        path.lineTo(points[114] * scale, points[115] * scale);
-        path.close();
-        canvas.drawPath(path, paint);
-
-        // 绘制右眼
-        path.reset();
-        path.moveTo(points[116] * scale, points[117] * scale);
-        path.lineTo(points[118] * scale, points[119] * scale);
-        path.lineTo(points[150] * scale, points[151] * scale);
-        path.lineTo(points[120] * scale, points[121] * scale);
-        path.lineTo(points[122] * scale, points[123] * scale);
-        path.lineTo(points[124] * scale, points[125] * scale);
-        path.lineTo(points[152] * scale, points[153] * scale);
-        path.lineTo(points[126] * scale, points[127] * scale);
-        path.close();
-        canvas.drawPath(path, paint);
 
         return bitmap;
     }
